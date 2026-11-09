@@ -8,6 +8,6 @@
 // pregledač jer bazu štite pravila pristupa (RLS).
 // ================================================================
 window.EBEX_CONFIG = {
-  SUPABASE_URL: "https://OVDE-UPISI-PROJEKAT.supabase.co",
-  SUPABASE_ANON_KEY: "OVDE-NALEPI-PUBLISHABLE-ILI-ANON-KLJUC"
+  SUPABASE_URL: "https://npskupdjsvomjmcxbmvj.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_IXCxqAhpx3NI_GfloJ9xOQ_JWS_pdAw"
 };
