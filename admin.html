@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>eBex administracija</title>
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --ink:#141820; --muted:#5B6372; --line:#DEE2E8; --brand:#0E3B8C; --brand-ink:#fff;
+  --signal:#FFC928; --signal-ink:#141820; --ok:#17784A; --warn:#9A5B00; --danger:#B8322A; --soft:#EAF0FB; --hold:#FFF4D6;
+  --font: ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color-scheme: light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0F1218; --surface:#171B23; --ink:#EBEEF3; --muted:#9AA3B3; --line:#2A303B; --brand:#86A8FF; --brand-ink:#0F1218; --soft:#1C2433; --hold:#3A3015; --ok:#4CC58A; --warn:#E3A93C; --danger:#F07A70; color-scheme:dark; }
+}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--font)}
+a{color:var(--brand)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+aside{background:var(--surface);border-right:1px solid var(--line);padding:16px 10px;position:sticky;top:0;height:100vh;overflow-y:auto}
+aside .logo{font-weight:800;font-size:20px;padding:4px 10px 14px;display:flex;gap:8px;align-items:center}
+aside .logo i{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--brand);color:var(--brand-ink);font-style:normal}
+aside a{display:block;padding:8px 10px;border-radius:8px;color:var(--ink);text-decoration:none}
+aside a:hover{background:var(--bg)}
+aside a.on{background:var(--soft);color:var(--brand);font-weight:600}
+aside .who{border-top:1px solid var(--line);margin-top:14px;padding:12px 10px 0;font-size:13px;color:var(--muted)}
+main{padding:22px 26px 60px;min-width:0}
+h1{font-size:24px;margin:0 0 16px;letter-spacing:-.01em}
+h2{font-size:17px;margin:24px 0 10px}
+.sbx{background:var(--hold);border:1px solid var(--warn);border-radius:8px;padding:8px 12px;margin-bottom:16px;font-size:14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.tile b{display:block;font-size:24px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.tile span{color:var(--muted);font-size:13px}
+.tile.alert{border-color:var(--warn);background:var(--hold)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--bg)}
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.r{text-align:right}
+.badge{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--soft);color:var(--brand);white-space:nowrap}
+.badge.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.badge.warn{background:var(--hold);color:var(--warn)}
+.badge.bad{background:color-mix(in srgb,var(--danger) 14%,transparent);color:var(--danger)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.btn.sim{background:var(--hold);border-color:var(--warn)}
+.btn.danger{color:var(--danger)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input[type=text],input[type=email],input[type=password],input[type=search],select,textarea{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+textarea{width:100%;min-height:80px;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+.form{display:grid;gap:12px;max-width:420px}
+.field{display:grid;gap:4px}
+.field label{font-weight:600;font-size:13px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap}
+.thumbs img{width:110px;height:82px;object-fit:cover;border-radius:6px;background:var(--soft)}
+.center{max-width:420px;margin:10vh auto;padding:0 16px}
+pre{white-space:pre-wrap;word-break:break-word;margin:0}
+#toast{position:fixed;right:20px;bottom:20px;display:grid;gap:8px;z-index:50;width:min(420px,90vw)}
+.toast{background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:8px}
+.toast.bad{background:var(--danger);color:#fff}
+dialog{border:1px solid var(--line);border-radius:14px;padding:20px;width:min(480px,92vw);background:var(--surface);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (max-width:860px){ .layout{grid-template-columns:1fr} aside{position:static;height:auto} .grid2{grid-template-columns:1fr} main{padding:16px} }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast" aria-live="polite"></div>
+<dialog id="dlg"><form method="dialog" id="dlgf"></form></dialog>
+<script src="./config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script>
+'use strict';
+const CONF = window.EBEX_CONFIG || {};
+const SB_URL = (CONF.SUPABASE_URL || '').replace(/\/$/, '');
+const OK_CONF = /^https:\/\/.+\.supabase\.co$/.test(SB_URL) && !/OVDE/.test(CONF.SUPABASE_ANON_KEY || '');
+const sb = OK_CONF && window.supabase ? window.supabase.createClient(SB_URL, CONF.SUPABASE_ANON_KEY) : null;
+const root = document.getElementById('root');
+const A = { who: null, perms: new Set(), lastEvent: {} };
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const can = p => A.perms.has(p);
+function money(para) { if (para == null) return '—'; const v = Math.round(Number(para)); const a = Math.abs(v); let s = String(Math.trunc(a / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); if (a % 100) s += ',' + String(a % 100).padStart(2, '0'); return (v < 0 ? '−' : '') + s + ' RSD'; }
+function dt(iso, time = true) { if (!iso) return '—'; if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) { const [y, m, d] = iso.split('-'); return `${d}.${m}.${y}.`; } const p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Belgrade', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(iso)); const g = t => (p.find(x => x.type === t) || {}).value; return `${g('day')}.${g('month')}.${g('year')}.` + (time ? ` ${g('hour')}:${g('minute')}` : ''); }
+const imgUrl = p => `${SB_URL}/storage/v1/object/public/listing-media/${String(p).split('/').map(encodeURIComponent).join('/')}`;
+const TONE = { ACTIVE: 'ok', COMPLETED: 'ok', PAID: 'ok', VERIFIED: 'ok', COLLECTED: 'ok', DELIVERED: 'ok', RELEASED: 'ok', RESOLVED: 'ok', PENDING_REVIEW: 'warn', PAYOUT_HOLD: 'warn', DISPUTED: 'warn', REVIEW: 'warn', PENDING: 'warn', OPEN: 'warn', RELEASE_REQUESTED: 'warn', REMITTANCE_PENDING: 'warn', REJECTED: 'bad', REMOVED: 'bad', CANCELLED: 'bad', SHIPMENT_EXPIRED: 'bad', FAILED: 'bad', PAYOUT_FAILED: 'bad', SUSPENDED: 'bad', MANUAL_REVIEW: 'bad', RETURN_REQUIRED: 'bad' };
+const b = s => `<span class="badge ${TONE[s] || ''}">${esc(s)}</span>`;
+function toast(m, k = '') { const t = document.createElement('div'); t.className = 'toast ' + k; t.textContent = m; $('#toast').appendChild(t); setTimeout(() => t.remove(), k ? 8000 : 4000); }
+async function rpc(n, a) { const { data, error } = await sb.rpc(n, a || {}); if (error) throw new Error(error.message); if (data && data.ok === false) throw new Error(data.error); return data; }
+async function q(p) { const { data, error } = await p; if (error) throw new Error(error.message); return data; }
+async function busy(btn, fn) { const o = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span>'; try { return await fn(); } catch (e) { toast(e.message, 'bad'); } finally { if (btn.isConnected) { btn.disabled = false; btn.innerHTML = o; } } }
+
+// Dijalog sa obrazloženjem (svaka osetljiva radnja ga zahteva)
+function ask(title, text, fields) {
+  return new Promise(res => {
+    const d = $('#dlg'), f = $('#dlgf');
+    f.innerHTML = `<h2 style="margin-top:0">${esc(title)}</h2>${text ? `<p class="small">${text}</p>` : ''}<div class="form" style="max-width:none">${fields.map(x => `<div class="field"><label>${esc(x.label)}</label>${x.type === 'select' ? `<select name="${x.name}">${x.options.map(o => `<option value="${esc(o[0])}">${esc(o[1])}</option>`).join('')}</select>` : x.type === 'area' ? `<textarea name="${x.name}" style="font-family:inherit" ${x.min ? `minlength="${x.min}" required` : ''}>${esc(x.value || '')}</textarea>` : `<input type="${x.type || 'text'}" name="${x.name}" value="${esc(x.value || '')}" ${x.min ? `minlength="${x.min}" required` : ''}>`}</div>`).join('')}</div>
+      <div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn" value="cancel" formnovalidate>Odustani</button><button class="btn primary" value="ok">Potvrdi</button></div>`;
+    d.onclose = () => { if (d.returnValue === 'ok') res(Object.fromEntries(new FormData(f))); else res(null); };
+    d.returnValue = ''; d.showModal();
+  });
+}
+
+/* ---------- prijava i dvofaktorska potvrda ---------- */
+function vLogin(msg) {
+  root.innerHTML = `<div class="center"><h1>eBex administracija</h1>${msg ? `<p class="sbx">${esc(msg)}</p>` : ''}
+  <form class="panel form" id="lf"><div class="field"><label>E-adresa</label><input type="email" name="e" required autocomplete="username"></div>
+  <div class="field"><label>Lozinka</label><input type="password" name="p" required autocomplete="current-password"></div><button class="btn primary">Prijavi se</button></form>
+  <p class="small muted">Administratorski nalog dodeljuje glavni administrator. Prijava zahteva aplikaciju za jednokratne kodove (npr. Google Authenticator ili Microsoft Authenticator).</p></div>`;
+  $('#lf').onsubmit = e => { e.preventDefault(); busy(e.target.querySelector('button'), async () => {
+    const { error } = await sb.auth.signInWithPassword({ email: e.target.e.value, password: e.target.p.value });
+    if (error) throw new Error(/Invalid login/.test(error.message) ? 'Pogrešna e-adresa ili lozinka.' : error.message);
+    start();
+  }); };
+}
+async function vMfa() {
+  const { data: aal } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal.currentLevel === 'aal2') return true;
+  const { data: fl } = await sb.auth.mfa.listFactors();
+  const verified = (fl.totp || []).find(f => f.status === 'verified');
+  if (verified) {
+    root.innerHTML = `<div class="center"><h1>Dvofaktorska potvrda</h1><form class="panel form" id="mf"><div class="field"><label>Kod iz aplikacije za autentifikaciju</label><input name="c" inputmode="numeric" maxlength="6" required autofocus></div><button class="btn primary">Potvrdi</button></form><button class="btn" id="lo">Odjavi se</button></div>`;
+    $('#lo').onclick = async () => { await sb.auth.signOut(); vLogin(); };
+    $('#mf').onsubmit = e => { e.preventDefault(); busy(e.target.querySelector('button'), async () => {
+      const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: verified.id, code: e.target.c.value.trim() });
+      if (error) throw new Error('Kod nije ispravan ili je istekao.'); start();
+    }); };
+    return false;
+  }
+  for (const f of (fl.all || []).filter(x => x.status === 'unverified')) await sb.auth.mfa.unenroll({ factorId: f.id });
+  const { data: en, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'eBex admin ' + new Date().toISOString().slice(0, 16) });
+  if (error) { vLogin('Uključivanje dvofaktorske prijave nije uspelo: ' + error.message); return false; }
+  const qr = String(en.totp.qr_code || '');
+  const qrSrc = qr.startsWith('data:') ? qr : 'data:image/svg+xml;utf8,' + encodeURIComponent(qr);
+  root.innerHTML = `<div class="center" style="max-width:520px"><h1>Uključi dvofaktorsku prijavu</h1>
+    <div class="panel"><p class="small">1. Na telefonu otvori aplikaciju za autentifikaciju (Google Authenticator, Microsoft Authenticator ili sl.) i skeniraj kod.</p>
+    <img alt="QR kod" src="${esc(qrSrc)}" style="width:200px;height:200px;background:#fff;padding:8px;border-radius:8px">
+    <p class="small muted">Ako ne možeš da skeniraš, unesi ključ ručno: <span class="mono">${esc(en.totp.secret)}</span></p>
+    <form class="form" id="ef"><div class="field"><label>2. Upiši šestocifreni kod iz aplikacije</label><input name="c" inputmode="numeric" maxlength="6" required></div><button class="btn primary">Potvrdi i uključi</button></form></div></div>`;
+  $('#ef').onsubmit = e => { e.preventDefault(); busy(e.target.querySelector('button'), async () => {
+    const { error: er } = await sb.auth.mfa.challengeAndVerify({ factorId: en.id, code: e.target.c.value.trim() });
+    if (er) throw new Error('Kod nije ispravan. Proveri vreme na telefonu i pokušaj ponovo.'); toast('Dvofaktorska prijava je uključena.'); start();
+  }); };
+  return false;
+}
+
+/* ---------- okvir ---------- */
+const SECTIONS = [
+  ['pregled', 'Pregled', 'view_dashboard', sDash], ['moderacija', 'Moderacija oglasa', 'moderate_listings', sModeration],
+  ['porudzbine', 'Porudžbine i BEX', 'view_orders', sOrders], ['reklamacije', 'Reklamacije i zadržavanja', 'view_orders', sComplaints],
+  ['korisnici', 'Korisnici i računi', 'view_users', sUsers], ['usaglasavanje', 'Usaglašavanje i knjiga', 'view_finance', sRecon],
+  ['poslovi', 'Poslovi i rizik', 'run_jobs', sJobs], ['podesavanja', 'Podešavanja', 'manage_config', sConfig],
+  ['revizija', 'Revizijski trag', 'view_audit', sAudit], ['administratori', 'Administratori', 'manage_admins', sAdmins]
+];
+function frame() {
+  const [sec] = (location.hash.slice(1) || 'pregled').split('/');
+  root.innerHTML = `<div class="layout"><aside><div class="logo"><i>e</i>eBex admin</div>
+    ${SECTIONS.filter(s => can(s[2])).map(s => `<a href="#${s[0]}" class="${s[0] === sec ? 'on' : ''}">${s[1]}</a>`).join('')}
+    <div class="who">Uloga: <b>${esc(A.who.role)}</b><br><a href="./index.html" style="padding:6px 0">Korisnička aplikacija</a><a href="#" id="lo" style="padding:6px 0">Odjava</a></div></aside>
+    <main id="main"></main></div>`;
+  $('#lo').onclick = async e => { e.preventDefault(); await sb.auth.signOut(); vLogin(); };
+}
+async function route() {
+  if (!A.who) return;
+  frame();
+  const [sec, arg] = (location.hash.slice(1) || 'pregled').split('/');
+  const s = SECTIONS.find(x => x[0] === sec && can(x[2])) || SECTIONS.find(x => can(x[2]));
+  const main = $('#main');
+  main.innerHTML = (A.who.sandbox ? '<div class="sbx"><b>SANDBOX.</b> BEX, SMS i KYC su simulirani. Simulator BEX događaja nije produkciona integracija.</div>' : '') + '<div id="sec"><span class="spin"></span></div>';
+  try { await s[3]($('#sec'), arg); } catch (e) { $('#sec').innerHTML = `<div class="panel">Greška: ${esc(e.message)}</div>`; }
+}
+
+/* ---------- Pregled ---------- */
+async function sDash(el) {
+  const d = await rpc('admin_dashboard');
+  const n = (o, k) => (o || {})[k] || 0;
+  const tile = (v, l, alert) => `<div class="tile ${alert ? 'alert' : ''}"><b>${v}</b><span>${l}</span></div>`;
+  el.innerHTML = `<h1>Pregled</h1><div class="tiles">
+    ${tile(d.users + ` <span class="small muted">/ ${d.users_phone_verified} sa telefonom</span>`, 'Registrovani korisnici')}
+    ${tile(n(d.listings, 'ACTIVE'), 'Aktivni oglasi')}${tile(d.review_queue, 'Oglasi na pregledu', d.review_queue > 0)}
+    ${tile(n(d.orders, 'AWAITING_SHIPMENT') + n(d.orders, 'IN_TRANSIT'), 'Porudžbine u toku')}${tile(n(d.orders, 'COMPLETED'), 'Završene porudžbine')}
+    ${tile(d.holds_active, 'Zadržane isplate', d.holds_active > 0)}${tile(d.accounts_to_verify, 'Računi za proveru', d.accounts_to_verify > 0)}
+    ${tile(d.recon_open, 'Otvoreni slučajevi usaglašavanja', d.recon_open > 0)}${tile(d.risk_24h, 'Signali rizika (24 h)')}
+    ${tile(money(d.gmv_para), 'Vrednost naplaćene robe')}${tile(money(d.shipping_para), 'Promet BEX dostave kroz eBex')}${tile(money(d.pending_payout_para), 'Čeka isplatu prodavcima')}
+    ${tile(money(d.ledger_balance_para), 'Saldo knjige (mora biti 0)', d.ledger_balance_para !== 0)}</div>
+    <div class="grid2" style="margin-top:16px"><div class="panel"><h2 style="margin-top:0">Porudžbine po statusu</h2>${kvTable(d.orders)}</div><div class="panel"><h2 style="margin-top:0">Isplate po statusu</h2>${kvTable(d.payout)}</div></div>`;
+}
+const kvTable = o => Object.keys(o || {}).length ? `<table>${Object.entries(o).map(([k, v]) => `<tr><td>${b(k)}</td><td class="r num">${v}</td></tr>`).join('')}</table>` : '<p class="muted small">Nema podataka.</p>';
+
+/* ---------- Moderacija ---------- */
+async function sModeration(el) {
+  const rows = await q(sb.from('listings').select('*, listing_media(path, sort), seller:profiles!listings_seller_id_fkey(display_name, status)').eq('status', 'PENDING_REVIEW').order('updated_at').limit(50));
+  el.innerHTML = `<h1>Moderacija oglasa <span class="muted small">(${rows.length})</span></h1>${rows.length ? rows.map(l => `<div class="panel">
+    <div class="row" style="justify-content:space-between"><b>${esc(l.title)}</b><span class="num">${money(l.price_para)}</span></div>
+    <p class="small muted">${esc(l.seller?.display_name)} · ${esc(l.category_id)} · ${esc(l.city)} · ${l.sale_mode} · ${dt(l.updated_at)}</p>
+    <div class="sbx small" style="margin:8px 0">Razlog provere: ${esc(l.moderation_note || '—')}</div>
+    <div class="thumbs">${(l.listing_media || []).sort((a, c) => a.sort - c.sort).map(m => `<a href="${esc(imgUrl(m.path))}" target="_blank" rel="noopener"><img alt="" src="${esc(imgUrl(m.path))}"></a>`).join('')}</div>
+    <pre class="small" style="margin:10px 0">${esc(l.description)}</pre>
+    <div class="row"><button class="btn primary" data-d="APPROVE" data-id="${l.id}">Odobri</button><button class="btn" data-d="REJECT" data-id="${l.id}">Vrati na doradu</button><button class="btn danger" data-d="REMOVE" data-id="${l.id}">Ukloni</button></div></div>`).join('') : '<div class="panel muted">Nema oglasa na pregledu.</div>'}`;
+  $$('[data-d]', el).forEach(x => x.onclick = () => busy(x, async () => {
+    const v = await ask({ APPROVE: 'Odobri oglas', REJECT: 'Vrati na doradu', REMOVE: 'Ukloni oglas' }[x.dataset.d], x.dataset.d === 'APPROVE' ? '' : 'Obrazloženje vidi prodavac.', [{ name: 'r', label: 'Obrazloženje', type: 'area', min: x.dataset.d === 'APPROVE' ? 0 : 5 }]);
+    if (!v) return; await rpc('admin_moderate_listing', { p_id: x.dataset.id, p_decision: x.dataset.d, p_reason: v.r }); toast('Odluka je sačuvana.'); sModeration(el);
+  }));
+}
+
+/* ---------- Porudžbine i BEX simulator ---------- */
+const ORDER_ST = ['AWAITING_SHIPMENT', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED', 'DISPUTED', 'MANUAL_REVIEW', 'RETURN_REQUIRED', 'CANCELLED', 'SHIPMENT_EXPIRED', 'COD_COLLECTION_FAILED'];
+async function sOrders(el, id) {
+  if (id) return sOrderDetail(el, id);
+  el.innerHTML = `<h1>Porudžbine</h1><div class="row" style="margin-bottom:10px"><select id="fs"><option value="">Svi statusi</option>${ORDER_ST.map(s => `<option>${s}</option>`).join('')}</select><input type="search" id="fq" placeholder="Broj porudžbine"><button class="btn" id="fb">Prikaži</button></div><div id="ol"></div>`;
+  const load = async () => {
+    let qq = sb.from('orders').select('id, order_no, status, cod_status, payout_status, cod_amount_para, expected_payout_date, created_at, listing_snapshot, buyer:profiles!orders_buyer_id_fkey(display_name), seller:profiles!orders_seller_id_fkey(display_name)').order('created_at', { ascending: false }).limit(200);
+    if ($('#fs').value) qq = qq.eq('status', $('#fs').value);
+    if ($('#fq').value.trim()) qq = qq.ilike('order_no', '%' + $('#fq').value.trim() + '%');
+    const rows = await q(qq);
+    $('#ol').innerHTML = `<div class="tw"><table><tr><th>Broj</th><th>Predmet</th><th>Prodavac → kupac</th><th>Status</th><th>Pouzeće</th><th>Isplata</th><th class="r">Iznos</th><th>Kreirana</th></tr>
+      ${rows.map(o => `<tr class="click" data-id="${o.id}"><td class="mono">${esc(o.order_no)}</td><td>${esc(o.listing_snapshot?.title)}</td><td class="small">${esc(o.seller?.display_name)} → ${esc(o.buyer?.display_name)}</td><td>${b(o.status)}</td><td>${b(o.cod_status)}</td><td>${b(o.payout_status)}${o.expected_payout_date && o.payout_status !== 'PAID' ? `<div class="small muted">${dt(o.expected_payout_date)}</div>` : ''}</td><td class="r num">${money(o.cod_amount_para)}</td><td class="small">${dt(o.created_at)}</td></tr>`).join('') || '<tr><td colspan="8" class="muted">Nema porudžbina.</td></tr>'}</table></div>`;
+    $$('tr[data-id]', el).forEach(r => r.onclick = () => { location.hash = 'porudzbine/' + r.dataset.id; });
+  };
+  $('#fb').onclick = () => busy($('#fb'), load); await load();
+}
+const SIM = [['PICKED_UP', 'BEX preuzeo paket'], ['IN_TRANSIT', 'U transportu'], ['OUT_FOR_DELIVERY', 'Kurir dostavlja'], ['DELIVERED_COD_COLLECTED', 'Uručeno i naplaćeno pouzeće'], ['COD_FAILED', 'Kupac odbio / nije naplaćeno'], ['RETURNED_TO_SENDER', 'Vraćeno pošiljaocu'], ['HOLD_CONFIRMED', 'BEX potvrdio zadržavanje isplate'], ['PAYOUT_EXECUTED', 'BEX izvršio isplatu'], ['PAYOUT_FAILED', 'Isplata neuspela']];
+async function sOrderDetail(el, id) {
+  const o = await q(sb.from('orders').select('*, shipments(*), payout_holds(*), complaints(*), buyer:profiles!orders_buyer_id_fkey(display_name), seller:profiles!orders_seller_id_fkey(display_name)').eq('id', id).maybeSingle());
+  if (!o) { el.innerHTML = '<div class="panel">Porudžbina nije pronađena.</div>'; return; }
+  const [events, ledger, deliv, evid] = await Promise.all([
+    q(sb.from('bex_events').select('*').eq('order_id', id).order('id')),
+    can('view_finance') ? q(sb.from('ledger_entries').select('*').eq('order_id', id).order('id')) : Promise.resolve(null),
+    can('view_delivery') ? q(sb.from('order_delivery').select('*').eq('order_id', id).maybeSingle()) : Promise.resolve(null),
+    can('view_evidence') ? q(sb.from('packing_evidence').select('*').eq('order_id', id).order('id')) : Promise.resolve([])
+  ]);
+  const ship = (o.shipments || []).find(s => s.direction === 'OUTBOUND');
+  const hold = (o.payout_holds || []).find(h => ['ACTIVE', 'RELEASE_REQUESTED'].includes(h.status));
+  el.innerHTML = `<p><a href="#porudzbine">← Sve porudžbine</a></p><h1>${esc(o.order_no)} · ${esc(o.listing_snapshot?.title)}</h1>
+  <div class="grid2"><div class="panel"><dl class="kv">
+    <dt>Prodavac</dt><dd>${esc(o.seller?.display_name)}</dd><dt>Kupac</dt><dd>${esc(o.buyer?.display_name)}</dd><dt>Izvor</dt><dd>${esc(o.source)}</dd>
+    <dt>Status</dt><dd>${b(o.status)}</dd><dt>Pouzeće</dt><dd>${b(o.cod_status)}</dd><dt>Isplata</dt><dd>${b(o.payout_status)}</dd>
+    <dt>Cena / dostava</dt><dd class="num">${money(o.item_price_para)} / ${money(o.shipping_para)} (${esc(o.shipping_payer)})</dd>
+    <dt>Pouzeće ukupno</dt><dd class="num">${money(o.cod_amount_para)}</dd><dt>Neto prodavcu</dt><dd class="num">${money(o.seller_net_para)}</dd>
+    <dt>Rok predaje</dt><dd>${dt(o.handover_deadline)}</dd><dt>Naplaćeno</dt><dd>${dt(o.cod_collected_at)}</dd>
+    <dt>Očekivana isplata</dt><dd>${dt(o.expected_payout_date)}</dd><dt>Isplaćeno</dt><dd>${dt(o.paid_out_at)} ${esc(o.payout_ref || '')}</dd>
+    <dt>Dokaz pakovanja</dt><dd>${o.evidence_required ? 'obavezan' : 'nije obavezan'}</dd></dl></div>
+  <div><div class="panel"><h2 style="margin-top:0">Pošiljka</h2>${ship ? `<p><span class="mono">${esc(ship.tracking_no)}</span> ${b(ship.status)} ${ship.is_sandbox ? '<span class="badge warn">SANDBOX</span>' : ''}</p>` : '<p class="muted">Prodavac još nije prijavio pošiljku.</p>'}
+    ${deliv ? `<p class="small">Dostava: ${esc(deliv.recipient_name)}, ${esc(deliv.street)}, ${esc(deliv.postal_code)} ${esc(deliv.city)}</p>` : ''}
+    ${can('bex_simulate') && A.who.sandbox && ship ? `<h2>BEX simulator</h2><div class="row">${SIM.map(s => `<button class="btn sim" data-ev="${s[0]}">${s[1]}</button>`).join('')}</div>
+      <p class="small muted" style="margin-top:8px">Test duplikata: <button class="btn" id="dup" ${A.lastEvent[id] ? '' : 'disabled'}>Pošalji poslednji događaj ponovo</button></p>` : ''}</div>
+    <div class="panel"><h2 style="margin-top:0">Zadržavanje isplate</h2>${hold ? `<p>${b(hold.status)} ${esc(hold.kind)} · ${esc(hold.reason)}<br><span class="small muted">Zahtev BEX-u: ${dt(hold.bex_hold_requested_at)} · BEX potvrda: ${dt(hold.bex_hold_confirmed_at)}${hold.release_requested_at ? ` · prvo odobrenje deblokade: ${dt(hold.release_requested_at)}` : ''}</span></p>
+      ${can('release_hold') ? `<button class="btn primary" id="rel">${hold.status === 'RELEASE_REQUESTED' ? 'Drugo odobrenje deblokade' : 'Deblokiraj isplatu'}</button>` : ''}` : `<p class="muted small">Nema aktivnog zadržavanja.</p>${can('place_hold') && o.payout_status !== 'PAID' ? '<button class="btn danger" id="hld">Zadrži isplatu (sumnja na prevaru)</button>' : ''}`}</div></div></div>
+  ${evid && evid.length ? `<div class="panel"><h2 style="margin-top:0">Dokaz pakovanja (${evid.length})</h2><div class="thumbs" id="evt"></div></div>` : ''}
+  <h2>BEX događaji</h2><div class="tw"><table><tr><th>#</th><th>Spoljni ID</th><th>Tip</th><th>Nastao</th><th>Obrađen</th><th>Rezultat</th><th>Izvor</th></tr>${events.map(e => `<tr><td>${e.id}</td><td class="mono">${esc(e.external_event_id)}</td><td>${esc(e.event_type)}</td><td class="small">${dt(e.occurred_at)}</td><td class="small">${dt(e.processed_at)}</td><td>${b(e.result)}</td><td>${esc(e.source)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Nema događaja.</td></tr>'}</table></div>
+  ${ledger ? `<h2>Glavna knjiga (memo: eBex ne drži novac, prati BEX tok)</h2><div class="tw"><table><tr><th>Grupa</th><th>Konto</th><th class="r">Iznos</th><th>Razlog</th><th>Referenca</th><th>Vreme</th></tr>${ledger.map(l => `<tr><td class="mono">${esc(l.entry_group.slice(0, 8))}</td><td>${esc(l.account)}</td><td class="r num">${money(l.amount_para)}</td><td>${esc(l.reason)}</td><td class="mono">${esc(l.external_ref)}</td><td class="small">${dt(l.created_at)}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">Nema knjiženja.</td></tr>'}
+    <tr><td colspan="2"><b>Saldo</b></td><td class="r num"><b>${money(ledger.reduce((s, l) => s + Number(l.amount_para), 0))}</b></td><td colspan="3"></td></tr></table></div>` : ''}`;
+  $$('[data-ev]', el).forEach(x => x.onclick = () => busy(x, async () => {
+    const r = await rpc('admin_bex_event', { p_order_id: id, p_event_type: x.dataset.ev, p_external_event_id: null });
+    A.lastEvent[id] = { type: x.dataset.ev, ext: r.external_event_id };
+    toast('BEX događaj: ' + r.result); sOrderDetail(el, id);
+  }));
+  const dup = $('#dup'); if (dup) dup.onclick = () => busy(dup, async () => { const l = A.lastEvent[id]; const r = await rpc('admin_bex_event', { p_order_id: id, p_event_type: l.type, p_external_event_id: l.ext }); toast('Ponovljen događaj → ' + r.result + ' (očekivano: DUPLICATE)'); sOrderDetail(el, id); });
+  const rel = $('#rel'); if (rel) rel.onclick = () => busy(rel, async () => { const v = await ask('Deblokada isplate', 'Isplata nastavlja po BEX roku. Radnja se trajno beleži.', [{ name: 'r', label: 'Obrazloženje odluke', type: 'area', min: 10 }]); if (!v) return; const r = await rpc('admin_release_hold', { p_hold_id: hold.id, p_reason: v.r }); toast(r.result === 'PENDING_SECOND_APPROVAL' ? 'Čeka drugo odobrenje drugog administratora.' : 'Isplata je deblokirana.'); sOrderDetail(el, id); });
+  const hld = $('#hld'); if (hld) hld.onclick = () => busy(hld, async () => { const v = await ask('Zadržavanje isplate', 'Šalje se zahtev BEX-u da ne isplati prodavcu do odluke.', [{ name: 'r', label: 'Razlog sumnje', type: 'area', min: 10 }]); if (!v) return; const r = await rpc('admin_place_hold', { p_order_id: id, p_reason: v.r }); toast(r.note || 'Isplata je zadržana.'); sOrderDetail(el, id); });
+  const evt = $('#evt'); if (evt) for (const e of evid) {
+    const { data } = await sb.storage.from('evidence').createSignedUrl(e.path, 300);
+    if (data) evt.insertAdjacentHTML('beforeend', e.mime.startsWith('image/') ? `<a href="${esc(data.signedUrl)}" target="_blank" rel="noopener" title="SHA-256 ${esc(e.sha256)}"><img alt="" src="${esc(data.signedUrl)}"></a>` : `<a class="btn" href="${esc(data.signedUrl)}" target="_blank" rel="noopener">Video ${dt(e.created_at)}</a>`);
+  }
+}
+
+/* ---------- Reklamacije i zadržavanja ---------- */
+async function sComplaints(el) {
+  const [comps, holds] = await Promise.all([
+    q(sb.from('complaints').select('*, order:orders(id, order_no, payout_status, listing_snapshot)').in('status', ['OPEN', 'UNDER_REVIEW']).order('created_at')),
+    q(sb.from('payout_holds').select('*, order:orders(id, order_no, listing_snapshot, seller_net_para)').in('status', ['ACTIVE', 'RELEASE_REQUESTED']).order('created_at'))
+  ]);
+  const reasons = Object.fromEntries(((await q(sb.from('app_config').select('value').eq('key', 'complaint_reasons').maybeSingle()))?.value || []).map(r => [r.code, r.label]));
+  el.innerHTML = `<h1>Reklamacije <span class="muted small">(${comps.length})</span></h1>${comps.map(c => `<div class="panel"><div class="row" style="justify-content:space-between"><b>${esc(c.order?.order_no)} · ${esc(c.order?.listing_snapshot?.title)}</b>${b(c.status)}</div>
+    <p class="small"><b>${esc(reasons[c.reason] || c.reason)}</b> · prijavljeno ${dt(c.created_at)} ${c.post_payout ? '<span class="badge bad">posle isplate</span>' : ''} · isplata ${b(c.order?.payout_status)}</p><pre class="small">${esc(c.description)}</pre>
+    <div class="row" style="margin-top:10px"><a class="btn" href="#porudzbine/${esc(c.order_id)}">Detalji i dokazi</a>${can('resolve_complaints') ? `<button class="btn primary" data-c="${c.id}" data-o="SELLER">U korist prodavca</button><button class="btn danger" data-c="${c.id}" data-o="BUYER">Usvoji — povrat preko BEX-a</button>` : ''}</div></div>`).join('') || '<div class="panel muted">Nema otvorenih reklamacija.</div>'}
+  <h1 style="margin-top:28px">Aktivna zadržavanja <span class="muted small">(${holds.length})</span></h1><div class="tw"><table><tr><th>Porudžbina</th><th>Vrsta</th><th>Razlog</th><th>Status</th><th>Zahtev BEX-u</th><th>BEX potvrda</th><th class="r">Iznos</th></tr>
+    ${holds.map(h => `<tr class="click" data-o="${h.order_id}"><td class="mono">${esc(h.order?.order_no)}</td><td>${esc(h.kind)}</td><td>${esc(h.reason)}</td><td>${b(h.status)}</td><td class="small">${dt(h.bex_hold_requested_at)}</td><td class="small">${dt(h.bex_hold_confirmed_at)}</td><td class="r num">${money(h.order?.seller_net_para)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Nema aktivnih zadržavanja.</td></tr>'}</table></div>`;
+  $$('[data-c]', el).forEach(x => x.onclick = () => busy(x, async () => {
+    const v = await ask(x.dataset.o === 'SELLER' ? 'Odluka u korist prodavca' : 'Usvajanje reklamacije', x.dataset.o === 'SELLER' ? 'Isplata se deblokira (uz drugo odobrenje ako je uključen princip četiri oka).' : 'Isplata ostaje zadržana, otvara se slučaj za BEX povrat robe i povraćaj pouzeća.', [{ name: 'r', label: 'Obrazloženje (vide ga obe strane)', type: 'area', min: 10 }]);
+    if (!v) return; const r = await rpc('admin_resolve_complaint', { p_complaint_id: x.dataset.c, p_outcome: x.dataset.o, p_reason: v.r });
+    toast(r.result === 'PENDING_SECOND_APPROVAL' ? 'Čeka drugo odobrenje.' : 'Odluka je sačuvana.'); sComplaints(el);
+  }));
+  $$('tr[data-o]', el).forEach(r => r.onclick = () => { location.hash = 'porudzbine/' + r.dataset.o; });
+}
+
+/* ---------- Korisnici i isplatni računi ---------- */
+async function sUsers(el) {
+  el.innerHTML = `<h1>Korisnici i računi za isplatu</h1><div class="row" style="margin-bottom:10px"><input type="search" id="uq" placeholder="E-adresa, ime ili prikazano ime"><button class="btn" id="ub">Traži</button></div><div id="ul"></div>`;
+  const load = async () => {
+    const rows = await rpc('admin_list_users', { p_q: $('#uq').value.trim() || null });
+    $('#ul').innerHTML = `<div class="tw"><table><tr><th>Korisnik</th><th>Telefon</th><th>Identitet</th><th>Račun za isplatu</th><th>Rizik</th><th>Nalog</th><th></th></tr>${rows.map(u => `<tr>
+      <td><b>${esc(u.full_name || u.display_name)}</b><div class="small muted">${esc(u.email)} · od ${dt(u.created_at, false)}</div></td>
+      <td class="small">${u.phone_verified ? b('VERIFIED') : '<span class="muted">nije potvrđen</span>'}<div class="mono">${esc(u.phone || '')}</div></td>
+      <td>${b(u.identity_status)}</td>
+      <td>${u.payout_account ? `<span class="mono">${esc(u.payout_account)}</span><div class="small">${esc(u.payout_holder)} ${b(u.payout_status)}</div>${(u.payout_flags || []).length ? `<div class="small" style="color:var(--warn)">${esc(u.payout_flags.join(', '))}</div>` : ''}` : '<span class="muted small">nema</span>'}</td>
+      <td class="num">${u.risk_count}</td><td>${b(u.status)}</td>
+      <td><div class="row">${can('verify_identity') && u.identity_status !== 'VERIFIED' ? `<button class="btn" data-idv="${u.id}">Identitet ✓</button>` : ''}
+        ${can('verify_accounts') && u.payout_id && ['PENDING', 'REVIEW'].includes(u.payout_status) ? `<button class="btn primary" data-acc="${u.payout_id}" data-ok="1">Račun ✓</button><button class="btn danger" data-acc="${u.payout_id}" data-ok="0">Odbij</button>` : ''}
+        ${can('suspend_users') ? `<button class="btn ${u.status === 'ACTIVE' ? 'danger' : ''}" data-sus="${u.id}" data-st="${u.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE'}">${u.status === 'ACTIVE' ? 'Suspenduj' : 'Aktiviraj'}</button>` : ''}</div></td></tr>`).join('') || '<tr><td colspan="7" class="muted">Nema rezultata.</td></tr>'}</table></div>`;
+    $$('[data-idv]', el).forEach(x => x.onclick = () => busy(x, async () => { const v = await ask('Verifikacija identiteta', 'SANDBOX: ručna provera dok se ne poveže KYC servis. Upiši kako je provereno.', [{ name: 'r', label: 'Način provere (npr. lična karta uživo, video poziv)', type: 'area', min: 5 }]); if (!v) return; await rpc('admin_set_identity', { p_user_id: x.dataset.idv, p_status: 'VERIFIED', p_reason: v.r }); toast('Identitet je verifikovan.'); load(); }));
+    $$('[data-acc]', el).forEach(x => x.onclick = () => busy(x, async () => { const ok = x.dataset.ok === '1'; const v = await ask(ok ? 'Verifikacija računa' : 'Odbijanje računa', ok ? 'Potvrdi da račun glasi na istu osobu (izvod, potvrda banke).' : 'Korisnik vidi obrazloženje.', [{ name: 'r', label: 'Obrazloženje', type: 'area', min: 5 }]); if (!v) return; await rpc('admin_verify_payout_account', { p_account_id: x.dataset.acc, p_approve: ok, p_reason: v.r }); toast('Sačuvano.'); load(); }));
+    $$('[data-sus]', el).forEach(x => x.onclick = () => busy(x, async () => { const v = await ask(x.dataset.st === 'SUSPENDED' ? 'Suspenzija naloga' : 'Ponovna aktivacija', 'Trajna sankcija zahteva ljudsku odluku i obrazloženje.', [{ name: 'r', label: 'Obrazloženje', type: 'area', min: 10 }]); if (!v) return; await rpc('admin_set_user_status', { p_user_id: x.dataset.sus, p_status: x.dataset.st, p_reason: v.r }); toast('Status naloga je promenjen.'); load(); }));
+  };
+  $('#ub').onclick = () => busy($('#ub'), load); $('#uq').onkeydown = e => { if (e.key === 'Enter') $('#ub').click(); };
+  await load();
+}
+
+/* ---------- Usaglašavanje i knjiga ---------- */
+async function sRecon(el) {
+  const [cases, ledger] = await Promise.all([
+    q(sb.from('reconciliation_cases').select('*').order('created_at', { ascending: false }).limit(100)),
+    q(sb.from('ledger_entries').select('account, amount_para').limit(5000))
+  ]);
+  const by = {}; ledger.forEach(l => { by[l.account] = (by[l.account] || 0) + Number(l.amount_para); });
+  const total = Object.values(by).reduce((a, c) => a + c, 0);
+  el.innerHTML = `<h1>Usaglašavanje</h1><div class="grid2"><div class="panel"><h2 style="margin-top:0">Stanje konta</h2><table>${Object.entries(by).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="r num">${money(v)}</td></tr>`).join('')}<tr><td><b>Ukupno (mora biti 0)</b></td><td class="r num"><b>${money(total)}</b></td></tr></table>
+    <p class="small muted">BEX_COD_RECEIVABLE = pouzeće koje je BEX naplatio a još nije isplatio prodavcu. SELLER_PAYABLE = obaveza prema prodavcima. eBex ne prima novac korisnika.</p></div>
+    <div class="panel"><h2 style="margin-top:0">Šta se ovde pojavljuje</h2><p class="small">Neslaganja između eBex evidencije i BEX događaja: isplata uprkos zadržavanju, reklamacija posle isplate, nepoznata pošiljka, neuspela isplata, potreban povrat robe. Svaki slučaj se zatvara pisanim obrazloženjem.</p></div></div>
+  <div class="tw"><table><tr><th>#</th><th>Vrsta</th><th>Porudžbina</th><th>Detalji</th><th>Status</th><th>Otvoren</th><th></th></tr>${cases.map(c => `<tr><td>${c.id}</td><td>${esc(c.kind)}</td><td>${c.order_id ? `<a href="#porudzbine/${esc(c.order_id)}">otvori</a>` : '—'}</td><td class="mono">${esc(JSON.stringify(c.details))}</td><td>${b(c.status)}${c.note ? `<div class="small">${esc(c.note)}</div>` : ''}</td><td class="small">${dt(c.created_at)}</td><td>${c.status === 'OPEN' && can('reconcile') ? `<button class="btn" data-rc="${c.id}">Zatvori</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Nema slučajeva.</td></tr>'}</table></div>`;
+  $$('[data-rc]', el).forEach(x => x.onclick = () => busy(x, async () => { const v = await ask('Zatvaranje slučaja', '', [{ name: 'r', label: 'Kako je usaglašeno (BEX izvod, referenca, odluka)', type: 'area', min: 10 }]); if (!v) return; await rpc('admin_resolve_reconciliation', { p_id: Number(x.dataset.rc), p_note: v.r }); toast('Slučaj je zatvoren.'); sRecon(el); }));
+}
+
+/* ---------- Poslovi, outbox, rizik ---------- */
+async function sJobs(el) {
+  const [outbox, risk] = await Promise.all([
+    can('view_delivery') ? q(sb.from('outbox').select('*').order('id', { ascending: false }).limit(50)) : Promise.resolve([]),
+    can('view_risk') ? q(sb.from('risk_signals').select('*').order('id', { ascending: false }).limit(50)) : Promise.resolve(null)
+  ]);
+  el.innerHTML = `<h1>Poslovi</h1><div class="panel"><p class="small">U produkciji ovi poslovi rade automatski po rasporedu. U test okruženju ih pokrećeš ručno.</p><div class="row">
+    ${can('bex_simulate') && A.who.sandbox ? '<button class="btn sim" id="j1">Simuliraj dospele BEX isplate</button>' : ''}<button class="btn" id="j2">Otkaži porudžbine sa isteklim rokom predaje</button></div></div>
+  <h2>Odlazni zahtevi ka BEX-u (outbox)</h2><div class="tw"><table><tr><th>#</th><th>Tema</th><th>Ključ idempotentnosti</th><th>Status</th><th>Kreiran</th></tr>${outbox.map(o => `<tr><td>${o.id}</td><td>${esc(o.topic)}</td><td class="mono">${esc(o.idempotency_key)}</td><td>${b(o.status)}</td><td class="small">${dt(o.created_at)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Prazno.</td></tr>'}</table></div>
+  ${risk ? `<h2>Signali rizika</h2><div class="tw"><table><tr><th>Vreme</th><th>Vrsta</th><th>Korisnik</th><th>Objekat</th><th>Detalji</th></tr>${risk.map(r => `<tr><td class="small">${dt(r.created_at)}</td><td>${esc(r.kind)}</td><td class="mono">${esc((r.user_id || '').slice(0, 8))}</td><td class="small">${esc(r.ref_type)} ${esc((r.ref_id || '').slice(0, 8))}</td><td class="mono">${esc(JSON.stringify(r.details))}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Nema signala.</td></tr>'}</table></div><p class="small muted">Signali ne kažnjavaju automatski. Odluke o suspenziji donosi čovek u sekciji Korisnici.</p>` : ''}`;
+  const j1 = $('#j1'); if (j1) j1.onclick = () => busy(j1, async () => { const r = await rpc('admin_sim_due_payouts'); toast('Simulirano isplata: ' + r.paid); sJobs(el); });
+  $('#j2').onclick = () => busy($('#j2'), async () => { const r = await rpc('admin_expire_overdue_orders'); toast('Otkazano porudžbina: ' + r.expired); });
+}
+
+/* ---------- Podešavanja ---------- */
+async function sConfig(el) {
+  const [rows, cats] = await Promise.all([q(sb.from('app_config').select('*').order('locked', { ascending: false }).order('key')), q(sb.from('categories').select('*').order('sort'))]);
+  const st = { ZAKLJUCANO: 'bad', SANDBOX_PRETPOSTAVKA: 'warn', POTVRDJENO: 'ok' };
+  el.innerHTML = `<h1>Podešavanja</h1><p class="small muted">Zaključane odluke se ne menjaju iz portala. „Sandbox pretpostavka” znači da vrednost čeka potvrdu BEX-a, pravne službe ili vlasnika proizvoda.</p>
+  <div class="tw"><table><tr><th>Parametar</th><th>Vrednost</th><th>Status odluke</th><th></th></tr>${rows.map(r => `<tr><td><b class="mono">${esc(r.key)}</b><div class="small muted">${esc(r.description)}</div></td>
+    <td style="min-width:280px">${r.locked ? `<pre class="mono">${esc(JSON.stringify(r.value))}</pre>` : `<textarea data-k="${esc(r.key)}" rows="${String(JSON.stringify(r.value)).length > 60 ? 4 : 1}">${esc(JSON.stringify(r.value, null, String(JSON.stringify(r.value)).length > 60 ? 1 : 0))}</textarea>`}</td>
+    <td><span class="badge ${st[r.decision_status]}">${esc(r.decision_status)}</span></td><td>${r.locked ? '🔒' : `<button class="btn" data-save="${esc(r.key)}">Sačuvaj</button>`}</td></tr>`).join('')}</table></div>
+  <h2>Kategorije</h2><div class="tw"><table><tr><th>Kategorija</th><th>Aktivna</th><th>Obavezan pregled</th><th>Ograničenje</th><th></th></tr>${cats.map(c => `<tr><td>${esc(c.name)} <span class="mono muted">${esc(c.id)}</span></td><td><input type="checkbox" data-ca="${esc(c.id)}" ${c.is_active ? 'checked' : ''}></td><td><input type="checkbox" data-cr="${esc(c.id)}" ${c.requires_review ? 'checked' : ''}></td><td class="small">${esc(c.feature_flag ? 'zaključano: ' + c.feature_flag : '')}</td><td><button class="btn" data-cs="${esc(c.id)}">Sačuvaj</button></td></tr>`).join('')}</table></div>`;
+  $$('[data-save]', el).forEach(x => x.onclick = () => busy(x, async () => {
+    let val; try { val = JSON.parse($(`textarea[data-k="${x.dataset.save}"]`, el).value); } catch (e) { throw new Error('Vrednost nije ispravan JSON (tekst ide pod navodnicima, npr. "buyer").'); }
+    const v = await ask('Izmena parametra ' + x.dataset.save, 'Izmena važi odmah za nove radnje i trajno se beleži.', [{ name: 'r', label: 'Razlog izmene i ko je odobrio', type: 'area', min: 5 }]); if (!v) return;
+    await rpc('admin_set_config', { p_key: x.dataset.save, p_value: val, p_reason: v.r }); toast('Parametar je sačuvan.'); sConfig(el);
+  }));
+  $$('[data-cs]', el).forEach(x => x.onclick = () => busy(x, async () => {
+    const id = x.dataset.cs; const v = await ask('Izmena kategorije', '', [{ name: 'r', label: 'Razlog', type: 'area', min: 5 }]); if (!v) return;
+    await rpc('admin_set_category', { p_id: id, p_active: $(`[data-ca="${id}"]`, el).checked, p_requires_review: $(`[data-cr="${id}"]`, el).checked, p_reason: v.r }); toast('Kategorija je sačuvana.'); sConfig(el);
+  }));
+}
+
+/* ---------- Revizija ---------- */
+async function sAudit(el) {
+  el.innerHTML = `<h1>Revizijski trag</h1><div class="row" style="margin-bottom:10px"><select id="ae"><option value="">Svi objekti</option>${['orders', 'payout_holds', 'payout_accounts', 'complaints', 'listings', 'app_config', 'admin_users', 'profiles', 'profile_private', 'categories', 'reconciliation_cases'].map(x => `<option>${x}</option>`).join('')}</select><input type="search" id="ai" placeholder="ID objekta"><input type="search" id="aa" placeholder="ID izvršioca"><button class="btn" id="ab">Prikaži</button></div><div id="al"></div>`;
+  const diff = (o, n) => { if (!o || !n) return n ? Object.keys(n).slice(0, 6).map(k => `${k}: ${JSON.stringify(n[k])}`).join('\n') + (Object.keys(n).length > 6 ? '\n…' : '') : ''; return Object.keys(n).filter(k => JSON.stringify(o[k]) !== JSON.stringify(n[k]) && k !== 'updated_at').map(k => `${k}: ${JSON.stringify(o[k])} → ${JSON.stringify(n[k])}`).join('\n'); };
+  const load = async () => {
+    let qq = sb.from('audit_events').select('*').order('id', { ascending: false }).limit(200);
+    if ($('#ae').value) qq = qq.eq('entity', $('#ae').value);
+    if ($('#ai').value.trim()) qq = qq.eq('entity_id', $('#ai').value.trim());
+    if ($('#aa').value.trim()) qq = qq.eq('actor_id', $('#aa').value.trim());
+    const rows = await q(qq);
+    $('#al').innerHTML = `<div class="tw"><table><tr><th>Vreme</th><th>Izvršilac</th><th>Radnja</th><th>Objekat</th><th>Promena</th><th>Obrazloženje</th></tr>${rows.map(a => `<tr><td class="small num">${dt(a.at)}</td><td class="small">${esc(a.actor_role)}<div class="mono">${esc((a.actor_id || '').slice(0, 8))}</div></td><td>${esc(a.action)}</td><td class="small">${esc(a.entity)}<div class="mono">${esc((a.entity_id || '').slice(0, 13))}</div></td><td><pre class="mono">${esc(diff(a.old_data, a.new_data))}</pre></td><td class="small">${esc(a.reason || '')}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">Nema zapisa.</td></tr>'}</table></div>`;
+  };
+  $('#ab').onclick = () => busy($('#ab'), load); await load();
+}
+
+/* ---------- Administratori ---------- */
+const ROLES = [['super_admin', 'Glavni administrator'], ['support', 'Korisnička podrška'], ['moderator', 'Moderator oglasa'], ['dispute_admin', 'Administrator sporova'], ['dispute_supervisor', 'Supervizor sporova'], ['finance', 'Finansije i usaglašavanje'], ['risk', 'Rizik i prevare'], ['bex_support', 'BEX logistička podrška'], ['marketing', 'Marketing i premium'], ['analyst', 'Analitičar'], ['legal', 'Pravna i usklađenost'], ['auditor', 'Revizor (samo čitanje)']];
+async function sAdmins(el) {
+  const rows = await q(sb.from('admin_users').select('*').order('created_at'));
+  const names = Object.fromEntries((rows.length ? await q(sb.from('profiles').select('id, display_name').in('id', rows.map(r => r.user_id))) : []).map(p => [p.id, p.display_name]));
+  rows.forEach(r => { r.profile = { display_name: names[r.user_id] }; });
+  el.innerHTML = `<h1>Administratori</h1><div class="tw"><table><tr><th>Ime</th><th>Uloga</th><th>Aktivan</th><th>Od</th></tr>${rows.map(a => `<tr><td>${esc(a.profile?.display_name)} <span class="mono muted">${esc(a.user_id.slice(0, 8))}</span></td><td>${esc((ROLES.find(r => r[0] === a.role) || [])[1] || a.role)}</td><td>${a.active ? b('ACTIVE') : b('SUSPENDED')}</td><td class="small">${dt(a.created_at, false)}</td></tr>`).join('')}</table></div>
+  <h2>Dodaj ili izmeni ulogu</h2><form class="panel form" id="rf"><div class="field"><label>E-adresa korisnika (mora prvo da se registruje u aplikaciji)</label><input type="email" name="e" required></div>
+    <div class="field"><label>Uloga</label><select name="r">${ROLES.map(r => `<option value="${r[0]}">${r[1]}</option>`).join('')}</select></div>
+    <label class="row small"><input type="checkbox" name="a" checked> Aktivan</label><button class="btn primary">Sačuvaj ulogu</button>
+    <p class="small muted" style="margin:0">Svaki administrator pri prvoj prijavi mora da uključi dvofaktorsku prijavu.</p></form>`;
+  $('#rf').onsubmit = e => { e.preventDefault(); busy(e.target.querySelector('button'), async () => { await rpc('admin_set_role', { p_email: e.target.e.value, p_role: e.target.r.value, p_active: e.target.a.checked }); toast('Uloga je sačuvana.'); sAdmins(el); }); };
+}
+
+/* ---------- start ---------- */
+async function start() {
+  if (!sb) { root.innerHTML = '<div class="center"><h1>Nije povezano</h1><p>Upiši Supabase podatke u config.js (uputstvo, korak 4).</p></div>'; return; }
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return vLogin();
+  let who;
+  try { who = await rpc('admin_whoami'); } catch (e) { return vLogin('Greška: ' + e.message); }
+  if (!who.role) { await sb.auth.signOut(); return vLogin('Ovaj nalog nema administratorska ovlašćenja.'); }
+  if (who.mfa_required && !who.mfa_ok) { const ok = await vMfa(); if (!ok) return; who = await rpc('admin_whoami'); }
+  A.who = who; A.perms = new Set(who.permissions || []);
+  if (!who.mfa_ok) { root.innerHTML = '<div class="center"><h1>Pristup odbijen</h1><p>Dvofaktorska potvrda nije prošla. Osveži stranicu.</p></div>'; return; }
+  route();
+}
+window.addEventListener('hashchange', route);
+start();
+</script>
+</body>
+</html>
